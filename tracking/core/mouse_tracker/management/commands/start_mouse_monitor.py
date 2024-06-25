@@ -6,6 +6,7 @@ from evdev import InputDevice, categorize, ecodes, list_devices
 from tracking.core.mouse_tracker.models import MouseEvent
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from tracking.services.websocket_wrapper import WebSocketWrapper
 
 
 class Command(BaseCommand):
@@ -44,6 +45,9 @@ class Command(BaseCommand):
                         x_total += event.value
                     elif event.code == ecodes.REL_Y:
                         y_total += event.value
+                    WebSocketWrapper().send_coordinates_socket(
+                        [{"x_total": x_total, "y_total": y_total}]
+                    )
                 elif event.type == ecodes.EV_KEY and event.code == ecodes.BTN_LEFT:
                     if event.value == 1:  # Button pressed
                         print(f"Left button clicked at X:{x_total}, Y:{y_total}")

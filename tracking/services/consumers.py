@@ -9,10 +9,10 @@ class BaseWebsocketConsumer(AsyncWebsocketConsumer):
     channel_layer = get_channel_layer()
     group_name = ""
 
-    async def connect(self, **kwargs):
-        self.room_name = "mouse_track"
+    async def connect(self, *args, **kwargs):
+
+        self.room_name = kwargs.get("prefix") if kwargs.get("prefix") else "mouse_track"
         self.room_group_name = self.room_name
-        print("self.room_group_name: ", self.room_group_name)
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.accept()
 

@@ -49,8 +49,17 @@ class WebSocketWrapper:
         """_summary_
 
         Args:
-            instance (Notification):
+            instance (send_images_socket):
         """
         # queryset = MouseEvent.objects.order_by("-created_at")[:10]
         payload = MouseEventSerializers(instance).data
         self.broadcast_websocket_message("mouse_track", payload)
+
+    def send_coordinates_socket(self, coordinates: MouseEvent) -> None:
+        """_summary_
+
+        Args:
+            instance (send_coordinates_socket):
+        """
+
+        self.broadcast_websocket_message("mouseCoordinates", coordinates)

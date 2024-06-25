@@ -1,42 +1,73 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const imageUrls = [
-    'http://localhost:8000/media/images/2024-06-25_14-58-15.jpg',
-  ];
+  const imageUrls = [];
 
   const bottomSection = document.getElementById('bottom-section');
   const socket = new WebSocket(
     'ws://' + window.location.host + '/fetch-image/'
   );
 
+  const socket2 = new WebSocket(
+    'ws://' + window.location.host + '/mouse-coordinates/'
+  );
+
+  socket2.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+    data.map((elements) => {
+      const button = document.getElementById('trackingButton');
+      button.textContent = `Tracking... (X: ${elements.x_total}, Y: ${elements.y_total})`;
+    });
+  };
+
   // Handle messages received from the WebSocket
   socket.onmessage = function (event) {
     const data = JSON.parse(event.data);
     if (data.image_path) {
-      imageUrls.push(data.image_path);
       disabledButtonAndModel();
-      displayImages([data.image_path]);
+      displaySocketImages(data);
     }
   };
 
   // Fetch initial image list from the API
-  fetch('http://localhost:8000/api/mouse-events')
+  fetch('http://localhost:8000/api/mouse-events/')
     .then((response) => response.json())
     .then((data) => {
-      const paths = data.map((element) => element.image_path);
-      imageUrls.push(...paths); // Spread syntax to add all new paths
-      displayImages(paths); // Display all fetched images
+      imageUrls.push(...data);
+      displayImages(imageUrls);
     })
     .catch((error) => console.error('Error fetching images:', error));
 
+  function displaySocketImages(data) {
+    const container = document.createElement('div');
+    container.className = 'socket-image';
+    const img = document.createElement('img');
+    const title = document.createElement('p');
+    img.src = data.image_path;
+    img.onclick = function () {
+      showModal(data.image_path);
+    };
+
+    title.innerHTML = `X: ${data.x_coordinate}, Y: ${data.y_coordinate}`;
+    container.appendChild(img);
+    container.appendChild(title);
+    bottomSection.appendChild(container);
+  }
+
   // Function to display images
-  function displayImages(paths) {
-    paths.forEach((url) => {
+  function displayImages(data) {
+    data.forEach((element) => {
+      const container = document.createElement('div');
       const img = document.createElement('img');
-      img.src = url;
+      const title = document.createElement('p');
+
+      img.src = element.image_path;
       img.onclick = function () {
-        showModal(url);
+        showModal(element.image_path);
       };
-      bottomSection.appendChild(img);
+
+      title.innerHTML = `X: ${element.x_coordinate}, Y: ${element.y_coordinate}`;
+      container.appendChild(img);
+      container.appendChild(title);
+      bottomSection.appendChild(container);
     });
   }
 });
@@ -51,15 +82,19 @@ function toggleTracking() {
 
 function disabledButtonAndModel(is_disable = false) {
   const bottomSection = document.getElementById('bottom-section');
+  const bottomPara = document.getElementById('button-para');
+
   const button = document.getElementById('trackingButton');
   if (is_disable) {
     bottomSection.classList.add('disabled');
     button.textContent = 'Tracking...';
     button.disabled = true;
+    bottomPara.style.display = 'block';
   } else {
     bottomSection.classList.remove('disabled');
     button.textContent = 'Start Tracking';
     button.disabled = false;
+    bottomPara.style.display = 'none';
   }
 }
 

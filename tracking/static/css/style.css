@@ -30,7 +30,13 @@ body {
 #bottom-section img {
     width: 100%;
     height: auto;
-    cursor: pointer;
+    cursor: pointer;    
+}
+
+#bottom-section p {
+    color: #333;
+    font-size: 20px;
+    text-align: center;
 }
 
 button {
@@ -86,4 +92,23 @@ button {
 .modal img {
     width: 100%;
     height: auto;
+}
+
+.socket-image {
+    border: 3px solid #4CAF50; 
+    box-shadow: 0 0 10px #4CAF50; 
+    padding: 5px; 
+    margin: 10px;
+    text-align: center;
+    display: inline-block;
+}
+
+.socket-image img {
+    width: 100px; 
+    height: auto;
+}
+
+.socket-image p {
+    color: #333;
+    font-size: 14px;
 }
